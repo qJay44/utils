@@ -28,3 +28,15 @@ inline void scaleU8toU16(const u8* src, u16* dst, size_t count) {
     dst[i] = static_cast<u16>(src[i]) * 257; // 255 * 257 ≈ 65535
 }
 
+#ifdef UTILS_ENABLE_GLM
+
+inline void print(const vec3& v, const std::string& name = "vec") {
+  printf("%s\n", std::format("{}: {}, {}, {}", name, v.x, v.y, v.z).c_str());
+}
+
+inline void print(const vec2& v, const std::string& name = "vec") {
+  printf("%s\n", std::format("{}: {}, {}", name, v.x, v.y).c_str());
+}
+
+#endif
+

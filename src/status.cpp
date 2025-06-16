@@ -21,6 +21,14 @@ void status::start(const std::string& titleArg, const std::string& whatArg) {
   printf("%s [%s]...\r", title.c_str(), what.c_str());
 }
 
+void status::update(const std::string& whatArg) {
+  if (!started)
+    error("No status to update");
+
+  what = whatArg;
+  printf("%s [%s]...\r", title.c_str(), what.c_str());
+}
+
 void status::end(bool success) {
   if (!started)
     error("No status to end");
