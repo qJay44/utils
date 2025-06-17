@@ -21,22 +21,29 @@ void status::start(const std::string& titleArg, const std::string& whatArg) {
   printf("%s [%s]...\r", title.c_str(), what.c_str());
 }
 
-void status::update(const std::string& whatArg) {
+void status::update(const std::string& whatArg, const bool& rightAlignment, const size_t width) {
   if (!started)
     error("No status to update");
 
+  std::string msg;
   what = whatArg;
-  printf("%s [%s]...\r", title.c_str(), what.c_str());
+
+  if (rightAlignment)
+    msg = std::format("{} {:>{}}...", title, what, width);
+  else
+    msg = std::format("{} {:<{}}...", title, what, width);
+
+  printf("%s\r", msg.c_str());
 }
 
 void status::end(bool success) {
   if (!started)
     error("No status to end");
 
-  if (success)
-    printf("%s [%s] %s\n", title.c_str(), what.c_str(), statusPositive.c_str());
-  else
-    printf("%s [%s] %s\n", title.c_str(), what.c_str(), statusNegative.c_str());
+  printf("                                                                 \r");
+
+  const char* const endStatus = success ? statusPositive.c_str() : statusNegative.c_str();
+  printf("%s [%s] %s\n", title.c_str(), what.c_str(), endStatus);
 
   started = false;
 }

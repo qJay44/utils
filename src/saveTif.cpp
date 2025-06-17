@@ -9,9 +9,10 @@ void saveTif(
   const u16& channels,
   const u16& depth,
   const u16& sampleFormat,
-  const void* pixels
+  const void* pixels,
+  const bool& flipVertically
 ) {
-  TIFF* tif = TIFFOpen(path, "r");
+  TIFF* tif = TIFFOpen(path, "w");
   if (!tif)
     error("[saveTif] Can't open file [{}]", path);
 
@@ -27,42 +28,45 @@ void saveTif(
     case SAMPLEFORMAT_UINT:
       switch (nbits) {
         case 8:
-          saveBuf<u8>(tif, width, height, pixels);
+          saveBuf<u8>(tif, width, height, pixels, flipVertically);
           break;
         case 16:
-          saveBuf<u16>(tif, width, height, pixels);
+          saveBuf<u16>(tif, width, height, pixels, flipVertically);
           break;
         case 32:
-          saveBuf<u32>(tif, width, height, pixels);
+          saveBuf<u32>(tif, width, height, pixels, flipVertically);
           break;
         default:
-          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth)", channels, depth);
+          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth) [SAMPLEFORMAT_UINT]", channels, depth);
       }
+      break;
     case SAMPLEFORMAT_INT:
       switch (nbits) {
         case 8:
-          saveBuf<s8>(tif, width, height, pixels);
+          saveBuf<s8>(tif, width, height, pixels, flipVertically);
           break;
         case 16:
-          saveBuf<s16>(tif, width, height, pixels);
+          saveBuf<s16>(tif, width, height, pixels, flipVertically);
           break;
         case 32:
-          saveBuf<s32>(tif, width, height, pixels);
+          saveBuf<s32>(tif, width, height, pixels, flipVertically);
           break;
         default:
-          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth)", channels, depth);
+          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth) [SAMPLEFORMAT_INT]", channels, depth);
       }
+      break;
     case SAMPLEFORMAT_IEEEFP:
       switch (nbits) {
         case 32:
-          saveBuf<float>(tif, width, height, pixels);
+          saveBuf<float>(tif, width, height, pixels, flipVertically);
           break;
         case 64:
-          saveBuf<double>(tif, width, height, pixels);
+          saveBuf<double>(tif, width, height, pixels, flipVertically);
           break;
         default:
-          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth)", channels, depth);
+          error("[saveTif] Unexpected number of bits [{} x {}] (channels x depth) [SAMPLEFORMAT_IEEEFP]", channels, depth);
       }
+      break;
     case SAMPLEFORMAT_VOID:
       error("[saveTif] Undefined sample format");
   }
@@ -74,7 +78,8 @@ void saveTif_R16UI(
   const char* path,
   const u32& width,
   const u32& height,
-  const u16* pixels
+  const u16* pixels,
+  const bool& flipVertically
 ) {
   TIFF* tif = TIFFOpen(path, "w");
   if (!tif)
@@ -87,7 +92,30 @@ void saveTif_R16UI(
   TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
   TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 
-  saveBuf<u16>(tif, width, height, pixels);
+  saveBuf<u16>(tif, width, height, pixels, flipVertically);
+
+  TIFFClose(tif);
+}
+
+void saveTif_R32UI(
+  const char* path,
+  const u32& width,
+  const u32& height,
+  const u32* pixels,
+  const bool& flipVertically
+) {
+  TIFF* tif = TIFFOpen(path, "w");
+  if (!tif)
+    error("[saveTif_R32UI] Can't open file [{}]", path);
+
+  TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+  TIFFSetField(tif, TIFFTAG_IMAGELENGTH, height);
+  TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
+  TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+  TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
+  TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+
+  saveBuf<u32>(tif, width, height, pixels, flipVertically);
 
   TIFFClose(tif);
 }

@@ -40,7 +40,7 @@ void* loadTif(
           buf = loadBuf<u32>(tif, w, h, flipVertically);
           break;
         default:
-          error("[loadTif] Unexpected number of bits [{} x {}] (channels x depth, flipVertically)", *channels, *depth);
+          error("[loadTif] Unexpected number of bits [{} x {}] (channels x depth)", *channels, *depth);
       }
     case SAMPLEFORMAT_INT:
       switch (nbits) {
