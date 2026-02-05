@@ -2,6 +2,7 @@
 
 #include <string>
 #include <format>
+#include <string_view>
 
 #include "types.hpp"
 
@@ -22,6 +23,18 @@ void error(const char* fmtMsg, Args&&... args) {
 }
 
 void warning(const std::string& msg);
+
+template<typename... Args>
+void warning(const char* fmtMsg, Args&&... args) {
+  warning(std::vformat(std::string(fmtMsg), std::make_format_args(args...)));
+}
+
+void dprint(const std::string& msg);
+
+template<typename... Args>
+void dprint(const char* fmtMsg, Args&&... args) {
+  dprint(std::vformat(std::string(fmtMsg), std::make_format_args(args...)));
+}
 
 inline void scaleU8toU16(const u8* src, u16* dst, size_t count) {
   for (size_t i = 0; i < count; i++)

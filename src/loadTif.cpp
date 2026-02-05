@@ -1,6 +1,7 @@
 #include "../include/utils/loadTif.hpp"
 
 #include "../include/utils/utils.hpp"
+#include <cassert>
 
 void* loadTif(
   const char* path,
@@ -11,15 +12,22 @@ void* loadTif(
   u16* sampleFormat,
   bool flipVertically
 ) {
+  assert(path);
+  assert(width);
+  assert(height);
+  assert(channels);
+  assert(depth);
+  assert(sampleFormat);
+
   TIFF* tif = TIFFOpen(path, "r");
   if (!tif)
-    error("[loadTif] can't open file [{}]\n", path);
+    error("[loadTif] Can't open file [{}]\n", path);
 
-  if (width)        TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
-  if (height)       TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
-  if (channels)     TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, channels);
-  if (depth)        TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, depth);
-  if (sampleFormat) TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, sampleFormat); // 1 - uint, 2 - sint, 3 - float, 4 - undefined
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
+  TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, channels);
+  TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, depth);
+  TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, sampleFormat); // 1 - uint, 2 - sint, 3 - float, 4 - undefined
   TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 
   const u32& w = *width;
@@ -71,9 +79,9 @@ void* loadTif(
       error("[loadTif] Undefined sample format");
   }
 
-  return buf;
-
   TIFFClose(tif);
+
+  return buf;
 }
 
 s16* loadTif_R16I(
@@ -82,14 +90,19 @@ s16* loadTif_R16I(
   u32* height,
   bool flipVertically
 ) {
+
+  assert(path);
+  assert(width);
+  assert(height);
+
   TIFF* tif = TIFFOpen(path, "r");
   if (!tif)
     error("[loadTif_R16I] Can't open file [{}]\n", path);
 
   u16 channels, depth, sampleFormat;
 
-  if (width)        TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
-  if (height)       TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
   TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &channels);
   TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &depth);
   TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, &sampleFormat); // 1 - uint, 2 - sint, 3 - float, 4 - undefined
@@ -103,9 +116,9 @@ s16* loadTif_R16I(
   const u32& h = *height;
   s16* buf = loadBuf<s16>(tif, w, h, flipVertically);
 
-  return buf;
-
   TIFFClose(tif);
+
+  return buf;
 }
 
 u16* loadTif_R16UI(
@@ -114,29 +127,33 @@ u16* loadTif_R16UI(
   u32* height,
   bool flipVertically
 ) {
+  assert(path);
+  assert(width);
+  assert(height);
+
   TIFF* tif = TIFFOpen(path, "r");
   if (!tif)
     error("[loadTif_R16UI] Can't open file [{}]\n", path);
 
   u16 channels, depth, sampleFormat;
 
-  if (width)        TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
-  if (height)       TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, width);
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, height);
   TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &channels);
   TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &depth);
   TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, &sampleFormat); // 1 - uint, 2 - sint, 3 - float, 4 - undefined
   TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 
-  if (channels != 1)     error("[loadTif_R16UI] Unexpected number of channels [{}]", channels);
-  if (depth != 16)       error("[loadTif_R16UI] Unexpected depth [{}]", depth);
-  if (sampleFormat != 1) error("[loadTif_R16UI] Unexpected sample format [{}]", sampleFormat);
+  if (channels != 1)     error("[loadTif_R16UI] Unexpected number of channels [{}] ({})", channels, path);
+  if (depth != 16)       error("[loadTif_R16UI] Unexpected depth [{}] ({})", depth, path);
+  if (sampleFormat != 1) error("[loadTif_R16UI] Unexpected sample format [{}] ({})", sampleFormat, path);
 
   const u32& w = *width;
   const u32& h = *height;
   u16* buf = loadBuf<u16>(tif, w, h, flipVertically);
 
-  return buf;
-
   TIFFClose(tif);
+
+  return buf;
 }
 

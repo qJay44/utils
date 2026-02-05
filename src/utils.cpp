@@ -37,3 +37,16 @@ void warning(const std::string& msg) {
   puts(text.c_str());
 }
 
+void dprint(const std::string& msg) {
+  #ifdef NDEBUG
+
+  static clrp::clrp_t fmt = {
+    .attr = clrp::ATTRIBUTE::BOLD,
+    .fg = clrp::FG::CYAN,
+  };
+  std::string text = clrp::format(msg, fmt);
+  puts(text.c_str());
+
+  #endif
+}
+
