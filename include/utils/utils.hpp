@@ -2,9 +2,16 @@
 
 #include <string>
 #include <format>
-#include <string_view>
 
 #include "types.hpp"
+
+namespace myutilsutils {
+  template<typename T>
+  concept AllowedErrorArg =
+      std::is_fundamental_v<std::decay_t<T>> ||                // Primitives (int, float, bool, etc.)
+      std::is_same_v<std::decay_t<T>, std::string> ||          // std::string
+      std::is_convertible_v<std::decay_t<T>, const char*>;
+}
 
 struct RunOnce {
   template<typename T> RunOnce(T&& f) { f(); }
@@ -18,6 +25,7 @@ void printTabs(u8 n);
 void error(const std::string& msg);
 
 template<typename... Args>
+requires(myutilsutils::AllowedErrorArg<Args>&& ...)
 void error(const char* fmtMsg, Args&&... args) {
   error(std::vformat(std::string(fmtMsg), std::make_format_args(args...)));
 }
@@ -25,6 +33,7 @@ void error(const char* fmtMsg, Args&&... args) {
 void warning(const std::string& msg);
 
 template<typename... Args>
+requires(myutilsutils::AllowedErrorArg<Args>&& ...)
 void warning(const char* fmtMsg, Args&&... args) {
   warning(std::vformat(std::string(fmtMsg), std::make_format_args(args...)));
 }
@@ -53,11 +62,11 @@ inline void scaleU32toU8(const u32* src, u8* dst, size_t count) {
 
 #ifdef UTILS_ENABLE_GLM
 
-inline void print(const vec3& v, const std::string& name = "vec") {
+inline void printVec(const vec3& v, const std::string& name = "vec") {
   printf("%s\n", std::format("{}: {}, {}, {}", name, v.x, v.y, v.z).c_str());
 }
 
-inline void print(const vec2& v, const std::string& name = "vec") {
+inline void printVec(const vec2& v, const std::string& name = "vec") {
   printf("%s\n", std::format("{}: {}, {}", name, v.x, v.y).c_str());
 }
 
