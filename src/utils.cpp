@@ -1,5 +1,6 @@
 #include "../include/utils/utils.hpp"
 
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 
@@ -25,7 +26,8 @@ void error(const std::string& msg) {
     .fg = clrp::FG::RED,
   };
   std::string text = clrp::format(msg, fmt);
-  throw std::runtime_error(text);
+  puts(text.c_str());
+  std::exit(EXIT_FAILURE);
 }
 
 void warning(const std::string& msg) {
