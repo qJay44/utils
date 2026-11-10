@@ -8,6 +8,9 @@
 
 std::string readFile(const fspath& path) {
   std::ifstream ifs(path);
+  if (!ifs.is_open())
+    error("[readFile] Can't open [{}]", path.string());
+
   std::ostringstream oss;
   oss << ifs.rdbuf();
   std::string entireFile = oss.str();
@@ -40,7 +43,7 @@ void warning(const std::string& msg) {
 }
 
 void dprint(const std::string& msg) {
-  #ifdef NDEBUG
+  #ifndef NDEBUG
 
   static clrp::clrp_t fmt = {
     .attr = clrp::ATTRIBUTE::BOLD,
